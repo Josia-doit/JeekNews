@@ -1,8 +1,10 @@
-# 新闻 HTML 日报
+# 新闻 HTML 日报 (JeekNews)
 
-用于生成北京时间 HTML 新闻日报的 Codex skill。它会从中文热榜、科技新闻、财经新闻、开发者资讯和黄金金价等多个来源抓取内容，输出一份可直接阅读的自包含 HTML 报告，并可同步生成页面长截图。
+用于生成北京时间 HTML 新闻日报的工具。从中文热榜、科技新闻、财经新闻、开发者资讯和黄金金价等多个来源抓取内容，输出一份可直接阅读的自包含 HTML 报告，并可同步生成页面长截图。
 
-English documentation is preserved below under [English](#english).
+支持在 Vercel 上一键部署为 Web 服务。
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/guliacer/JeekNews)
 
 ## 功能概览
 
@@ -13,7 +15,20 @@ English documentation is preserved below under [English](#english).
 - 在网页右侧提供返回顶部按钮，截图时会自动隐藏该按钮。
 - 对每个数据源做独立错误隔离，单个来源失败不会影响整份日报生成。
 
-## 安装为 Codex Skill
+## Vercel 一键部署
+
+点击上方 **Deploy with Vercel** 按钮即可一键部署到你的 Vercel 账号。
+
+部署后你会获得一个在线服务，通过 Web 界面即可生成新闻日报：
+
+- 首页（`/`）：Web 操作界面，设置参数后点击按钮即可在线生成日报
+- API（`/api/generate?limit=20&timeout=15&retries=2`）：直接调用 API 获取日报 HTML
+
+> **注意**：Vercel Serverless 环境不支持浏览器，因此部署版本不包含 PNG 截图功能。如需截图，请在本地运行脚本。
+
+## 本地运行
+
+### 安装为 Codex Skill
 
 将仓库克隆到 Codex skills 目录：
 
@@ -23,33 +38,13 @@ git clone https://github.com/guliacer/news-html-digest.git "$env:USERPROFILE\.co
 
 安装或更新后重启 Codex，让 Codex 重新发现 `SKILL.md`。
 
-## 使用方式
-
-在 Codex 中直接请求最新新闻，例如：
-
-```text
-【新闻】
-```
-
-或：
-
-```text
-生成最新新闻日报
-```
-
-该 skill 默认运行：
-
-```powershell
-python "$env:USERPROFILE\.codex\skills\news-html-digest\scripts\generate_news_html.py" --output-dir .
-```
-
-也可以直接运行脚本：
+### 直接运行脚本
 
 ```powershell
 python scripts\generate_news_html.py --output-dir . --limit 20 --timeout 15 --retries 2
 ```
 
-## 参数
+### 参数
 
 ```text
 --output-dir PATH          HTML 和 PNG 文件输出目录
@@ -87,9 +82,12 @@ HTML 是主要产物。PNG 是渲染页面的长截图；如果截图失败，HT
 ## 目录结构
 
 ```text
-SKILL.md
-agents/openai.yaml
-scripts/generate_news_html.py
+vercel.json              # Vercel 部署配置
+api/generate.py          # Vercel Serverless Function (API 端点)
+public/index.html        # Web 操作界面
+scripts/generate_news_html.py  # 核心生成脚本
+SKILL.md                 # Codex Skill 定义
+agents/openai.yaml       # Skill Agent 配置
 ```
 
 ## 注意事项
@@ -97,101 +95,4 @@ scripts/generate_news_html.py
 - 生成的日报适合快速阅读与浏览，不承诺作为长期归档数据源。
 - 远端站点可能调整结构、拦截请求或返回空数据；脚本会按来源隔离错误。
 - 截图依赖本机 Edge/Chrome headless 模式。如自动检测不到浏览器，可通过 `NEWS_HTML_BROWSER` 指定浏览器可执行文件路径。
-
-## English
-
-Codex skill for generating a Beijing-time HTML news digest from multiple Chinese, tech, finance, and developer-news sources. It writes a self-contained HTML report and can also capture a long PNG screenshot of the page.
-
-## What It Does
-
-- Fetches gold price data, Chinese hot lists, tech news, finance news, Hacker News, Solidot, and more.
-- Generates a timestamped HTML file named `YYYYMMDD-HHMMSS.html` using Beijing time.
-- Captures a same-basename long PNG screenshot when a local Edge/Chrome-compatible browser is available.
-- Renders source cards with clickable source chips for quick navigation.
-- Adds a right-side back-to-top button in the web page while hiding that button from generated screenshots.
-- Uses source-level error isolation, so one failed source does not break the whole report.
-
-## Install As A Codex Skill
-
-Clone this repository into your Codex skills directory:
-
-```powershell
-git clone https://github.com/guliacer/news-html-digest.git "$env:USERPROFILE\.codex\skills\news-html-digest"
-```
-
-Restart Codex after installing or updating the skill so it can rediscover `SKILL.md`.
-
-## Usage
-
-From Codex, ask for a latest-news report, for example:
-
-```text
-【新闻】
-```
-
-or:
-
-```text
-生成最新新闻日报
-```
-
-The skill runs:
-
-```powershell
-python "$env:USERPROFILE\.codex\skills\news-html-digest\scripts\generate_news_html.py" --output-dir .
-```
-
-You can also run the script directly:
-
-```powershell
-python scripts\generate_news_html.py --output-dir . --limit 20 --timeout 15 --retries 2
-```
-
-## Options
-
-```text
---output-dir PATH          Output directory for HTML and PNG files
---limit 10..20            Maximum items per source, default 20
---timeout SECONDS         Per-request timeout, default 15
---retries COUNT           Retries per source after the first attempt, default 2
---paper-node-id ID        The Paper node id, default 25950
---no-screenshot           Skip PNG screenshot capture
---screenshot-width PX     Browser screenshot width, default 1200
---screenshot-height PX    Browser screenshot height, default 60000
---screenshot-timeout SEC  Screenshot timeout, default 60
-```
-
-## Data Sources
-
-The generator currently queries:
-
-- Gold price lookup through Jijinhao quote APIs, with USD/CNH conversion from Eastmoney.
-- 60 秒每日要闻, Weibo hot search, Zhihu hot list, and Douyin hot search through `60s.viki.moe`.
-- Tencent tech news, The Paper, Eastmoney stock news, Bilibili hot search, Bilibili popular videos, IT之家, 少数派, 稀土掘金, Baidu hot search, Toutiao hot board, Hacker News, 参考消息, Solidot, and 财联社.
-
-Failed, empty, or blocked sources are omitted from the page rather than shown as broken cards.
-
-## Output
-
-For a successful run, the output directory receives files like:
-
-```text
-20260706-081629.html
-20260706-081629.png
-```
-
-The HTML file is the primary artifact. The PNG is a long screenshot of the rendered page. If screenshot capture fails, the HTML is still kept and the failure is reported plainly.
-
-## Repository Layout
-
-```text
-SKILL.md
-agents/openai.yaml
-scripts/generate_news_html.py
-```
-
-## Notes
-
-- The generated reports are intended as quick reading dashboards, not archival guarantees.
-- Remote sites may change schema, block requests, or return empty data; source-level errors are isolated.
-- The screenshot path uses local Edge/Chrome headless mode. Set `NEWS_HTML_BROWSER` to a browser executable path if auto-detection misses your browser.
+- Vercel 部署版本受 Serverless 环境限制：无截图功能，单个请求超时取决于你的 Vercel 计划（Hobby: 10s, Pro: 60s）。

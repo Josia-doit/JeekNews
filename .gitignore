@@ -6,5 +6,8 @@ __pycache__/
 .mypy_cache/
 
 # Generated reports/screenshots when testing locally
-*.html
-*.png
+/*.html
+/*.png
+
+# Vercel
+.vercel
