@@ -4,7 +4,7 @@
 
 支持在 Vercel 上一键部署为 Web 服务。
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/guliacer/JeekNews)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Josia-doit/JeekNews)
 
 ## 功能概览
 
